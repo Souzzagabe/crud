@@ -1,32 +1,14 @@
 {
   "todos": [
     {
-      "id": "8b87dc0e-5fdb-4e4e-a22b-66e670a66e25",
-      "date": "2024-10-02T02:20:57.393Z",
-      "content": "priemira todo",
+      "id": "dedde6e5-f3d5-40be-a2ce-cd9626e8fcda",
+      "date": "2024-10-08T19:57:36.279Z",
+      "content": "primeira todo",
       "done": false
     },
     {
-      "id": "b2035820-fd0c-49f6-907d-a4226d9fc5ac",
-      "date": "2024-10-02T02:20:57.395Z",
-      "content": "priemira todo",
-      "done": false
-    },
-    {
-      "id": "34d517a8-cab2-4c24-9181-1e723580aa62",
-      "date": "2024-10-02T02:20:57.397Z",
-      "content": "segunda TODO",
-      "done": false
-    },
-    {
-      "id": "02e0a300-468e-4279-beda-e395d47e5f4e",
-      "date": "2024-10-02T02:20:57.398Z",
-      "content": "priemira todo",
-      "done": false
-    },
-    {
-      "id": "bf6d0c04-cf01-41e0-9e27-408ff9d08140",
-      "date": "2024-10-02T02:20:57.399Z",
+      "id": "3139ad12-da6b-4939-8be7-fd3c17cd56fe",
+      "date": "2024-10-08T19:57:36.282Z",
       "content": "Atualizada",
       "done": false
     }

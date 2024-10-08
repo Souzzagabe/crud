@@ -16,6 +16,7 @@ interface Todo {
 
 
 function create(content: string): Todo {
+    
     const todo: Todo = {
         id: uuid(),
         date: new Date().toISOString(),
@@ -68,7 +69,23 @@ function updatedContentById(id: string, content: string): Todo {
      content,
     })
 }
+
+function deleteById(id: string ) {
+    const todos = read();
+
+    const todosWithoutOne = todos.filter((todo) => {
+
+        if(id === todo.id) {
+            return false
+        }
+        return true;
+    })
+    fs.writeFileSync(DB_FILE_PATH, JSON.stringify({
+        todos: todosWithoutOne,
+    }, null, 2))
+}
  
+
 function CLEAR_DB() {
     fs.writeFileSync(DB_FILE_PATH, "")
 }
@@ -76,14 +93,17 @@ function CLEAR_DB() {
 
 // SIMULATION
 CLEAR_DB()
-create("priemira todo")
-create("priemira todo")
-const terceiraTodo = create("segunda TODO")
+create("primeira todo")
+const secondTodo = create("segunda todoOO")
+deleteById(secondTodo.id);
+const thirdTodo = create("terceira TODO")
 // update(terceiraTodo.id, {
 //     content: "Atualizada",
 //     done: true,
 // });
 
-updatedContentById(terceiraTodo.id, "Atualizada")
+updatedContentById(thirdTodo.id, "Atualizada")
 
-console.log(read())
+const todos = read()
+console.log(todos)
+console.log(todos.length)
