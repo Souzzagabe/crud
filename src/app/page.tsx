@@ -1,12 +1,30 @@
 "use client";
 
-import React from "react";
-import { GlobalStyles } from "@/theme/GlobalStyles";
+import React, { useEffect, useState } from "react";
+import { GlobalStyles } from "@/ui/theme/GlobalStyles";
+import { todoController } from "@/ui/controller/todo";
 
 // const bg = "https://mariosouto.com/cursos/crudcomqualidade/bg";
 const bg = "/bg.jpeg"; // inside public folder
 
+interface HomeTodo {
+    id: string;
+    content: string;
+}
+
 function HomePage() {
+    const [todos, setTodos] = useState<HomeTodo[]>([]);
+
+    useEffect(() => {
+        todoController.get().then((todos) => {
+            console.log("Dados recebidos do backend:", todos);
+            setTodos(todos);
+        });
+    }, []);
+    
+    console.log("Estado de todos:", todos);  // Verifique o estado aqui também
+    
+    console.log("todos", fetch("http://localhost:3000/api/todos"));
     return (
         <>
             <main>
@@ -48,27 +66,29 @@ function HomePage() {
                         </thead>
 
                         <tbody>
-                            {/* Renderize apenas um dos elementos abaixo baseado no estado */}
-                            <tr>
-                                <td>
-                                    <input type="checkbox" />
-                                </td>
-                                <td>d4f26</td>
-                                <td>
-                                    Conteúdo de uma TODO Lorem ipsum dolor sit
-                                    amet consectetur adipisicing elit. Eaque
-                                    vero facilis obcaecati, autem aliquid eius!
-                                    Consequatur eaque doloribus laudantium
-                                    soluta optio odit, provident, ab voluptates
-                                    doloremque voluptas recusandae aspernatur
-                                    aperiam.
-                                </td>
-                                <td align="right">
-                                    <button data-type="delete">Apagar</button>
-                                </td>
-                            </tr>
-
-                            <tr>
+                            {todos && todos.length > 0 ? (
+                                todos.map((todo) => (
+                                    <tr key={todo.id}>
+                                        <td>
+                                            <input type="checkbox" />
+                                        </td>
+                                        <td>{todo.id.substring(0, 4)}</td>
+                                        <td>{todo.content}</td>
+                                        <td align="right">
+                                            <button data-type="delete">
+                                                Apagar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={4} align="center">
+                                        Carregando...
+                                    </td>
+                                </tr>
+                            )}
+                            {/* <tr>
                                 <td
                                     colSpan={4}
                                     align="center"
@@ -76,14 +96,14 @@ function HomePage() {
                                 >
                                     Carregando...
                                 </td>
-                            </tr>
+                            </tr> */}
 
-                            <tr>
+                            {/* <tr>
                                 <td colSpan={4} align="center">
                                     Nenhum item encontrado
                                 </td>
-                            </tr>
-
+                            </tr> */}
+                            {/* 
                             <tr>
                                 <td
                                     colSpan={4}
@@ -103,7 +123,7 @@ function HomePage() {
                                         </span>
                                     </button>
                                 </td>
-                            </tr>
+                            </tr> */}
                         </tbody>
                     </table>
                 </section>
