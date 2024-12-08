@@ -13,15 +13,18 @@ interface HomeTodo {
 }
 
 function HomePage() {
+    const [initialLoad, SetInitialLoad] = useState(false);
     const [page, setPage] = useState(1);
     const [todos, setTodos] = useState<HomeTodo[]>([]);
 
     useEffect(() => {
-        todoController.get({ page }).then(({todos}) => {
-            console.log("Dados recebidos do backend:", todos);
-            setTodos(todos);
-        });
-    }, []);
+        if (!initialLoad) {
+            todoController.get({ page }).then(({ todos }) => {
+                console.log("Dados recebidos do backend:", todos);
+                setTodos(todos);
+            });
+        }
+    }, [page]);
 
     console.log("Estado de todos:", todos); // Verifique o estado aqui também
 
