@@ -13,15 +13,21 @@ interface HomeTodo {
 }
 
 function HomePage() {
+    const [totalPages, setTotalPages] = useState(0);
     const [initialLoad, SetInitialLoad] = useState(false);
     const [page, setPage] = useState(1);
     const [todos, setTodos] = useState<HomeTodo[]>([]);
 
+    const hasMorePages = totalPages > page;
+
     useEffect(() => {
         if (!initialLoad) {
-            todoController.get({ page }).then(({ todos }) => {
+            todoController.get({ page }).then(({ todos, pages }) => {
                 console.log("Dados recebidos do backend:", todos);
-                setTodos(todos);
+                setTodos((oldTodos) => {
+                    return [...oldTodos, ...todos];
+                });
+                setTotalPages(pages);
             });
         }
     }, [page]);
@@ -108,29 +114,31 @@ function HomePage() {
                                 </td>
                             </tr> */}
 
-                            <tr>
-                                <td
-                                    colSpan={4}
-                                    align="center"
-                                    style={{ textAlign: "center" }}
-                                >
-                                    <button
-                                        data-type="load-more"
-                                        onClick={() => setPage(page + 1)}
+                            {hasMorePages && (
+                                <tr>
+                                    <td
+                                        colSpan={4}
+                                        align="center"
+                                        style={{ textAlign: "center" }}
                                     >
-                                        Página {page}, Carregar mais{" "}
-                                        <span
-                                            style={{
-                                                display: "inline-block",
-                                                marginLeft: "4px",
-                                                fontSize: "1.2em",
-                                            }}
+                                        <button
+                                            data-type="load-more"
+                                            onClick={() => setPage(page + 1)}
                                         >
-                                            ↓
-                                        </span>
-                                    </button>
-                                </td>
-                            </tr>
+                                            Página {page}, Carregar mais{" "}
+                                            <span
+                                                style={{
+                                                    display: "inline-block",
+                                                    marginLeft: "4px",
+                                                    fontSize: "1.2em",
+                                                }}
+                                            >
+                                                ↓
+                                            </span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </section>
