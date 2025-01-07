@@ -12,36 +12,40 @@ interface HomeTodo {
 }
 
 function HomePage() {
-    const [initialLoad, setInitialLoadComplete] = useState(false)
+    const [initialLoad, setInitialLoadComplete] = useState(false);
     const [totalPages, setTotalPages] = useState(0);
     const [page, setPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [todos, setTodos] = useState<HomeTodo[]>([]);
+    const [search, setSearch] = useState("");
 
-    const hasNoTodos = todos.length === 0 && !isLoading;
+    const homeTodos = todoController.filterTodosByContent<HomeTodo>(search, todos)
 
-    const hasMorePages = totalPages > page;
+    // const homeTodos = todos.filter((todo) => {
+    //     const searchNormalized = search.toLowerCase();
+    //     const contentNormalized = todo.content.toLowerCase();
+    //     return contentNormalized.includes(searchNormalized);
+    // });
+
+    const isFiltering = search.trim() !== ""; // Verifica se está filtrando
+    const showLoadMoreButton = !isFiltering && totalPages > page; // Botão aparece apenas sem filtro e com mais páginas
+    const hasNoTodos = isFiltering && homeTodos.length === 0 && !isLoading; // Mostra "Nenhum item encontrado" só durante a filtragem
 
     useEffect(() => {
-
-        setInitialLoadComplete(true)
-        if(!initialLoad) {
-
+        setInitialLoadComplete(true);
+        if (!initialLoad) {
             todoController
                 .get({ page })
                 .then(({ todos, pages }) => {
-                    setTodos(todos) // Atualiza o estado com os novos itens
+                    setTodos(todos); // Atualiza o estado com os novos itens
                     setTotalPages(pages); // Define o total de páginas
                 })
                 .finally(() => {
-                    setIsLoading(false); // Certifique-se de indicar o fim do carregamento
+                    setIsLoading(false); // Indica o fim do carregamento
                 });
         }
     }, []);
 
-    console.log("Estado de todos:", todos); // Verifique o estado aqui também
-
-    console.log("todos", fetch("http://localhost:3000/api/todos"));
     return (
         <>
             <main>
@@ -55,7 +59,11 @@ function HomePage() {
                         <h1>O que fazer hoje?</h1>
                     </div>
                     <form>
-                        <input type="text" placeholder="Correr, Estudar..." />
+                        <input
+                            type="text"
+                            placeholder="Correr, Estudar..."
+                            className="text-black"
+                        />
                         <button type="submit" aria-label="Adicionar novo item">
                             +
                         </button>
@@ -67,6 +75,10 @@ function HomePage() {
                         <input
                             type="text"
                             placeholder="Filtrar lista atual, ex: Dentista"
+                            onChange={(event) => {
+                                setSearch(event.target.value);
+                            }}
+                            className="text-black"
                         />
                     </form>
 
@@ -83,8 +95,8 @@ function HomePage() {
                         </thead>
 
                         <tbody>
-                            {todos && todos.length > 0 ? (
-                                todos.map((todo) => (
+                            {homeTodos && homeTodos.length > 0 ? (
+                                homeTodos.map((todo) => (
                                     <tr key={todo.id}>
                                         <td>
                                             <input type="checkbox" />
@@ -98,21 +110,11 @@ function HomePage() {
                                         </td>
                                     </tr>
                                 ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={4} align="center">
-                                        Carregando...
-                                    </td>
-                                </tr>
-                            )}
+                            ) : null}
 
                             {isLoading && (
                                 <tr>
-                                    <td
-                                        colSpan={4}
-                                        align="center"
-                                        style={{ textAlign: "center" }}
-                                    >
+                                    <td colSpan={4} align="center">
                                         Carregando...
                                     </td>
                                 </tr>
@@ -126,13 +128,9 @@ function HomePage() {
                                 </tr>
                             )}
 
-                            {hasMorePages && (
+                            {showLoadMoreButton && (
                                 <tr>
-                                    <td
-                                        colSpan={4}
-                                        align="center"
-                                        style={{ textAlign: "center" }}
-                                    >
+                                    <td colSpan={4} align="center">
                                         <button
                                             data-type="load-more"
                                             onClick={() => {
@@ -150,9 +148,7 @@ function HomePage() {
                                                                     ...todos,
                                                                 ]
                                                             );
-                                                            setTotalPages(
-                                                                pages
-                                                            );
+                                                            setTotalPages(pages);
                                                         }
                                                     )
                                                     .finally(() => {
