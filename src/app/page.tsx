@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { GlobalStyles } from "@/ui/theme/GlobalStyles";
 import { todoController } from "@/ui/controller/todo";
 
@@ -12,28 +12,25 @@ interface HomeTodo {
 }
 
 function HomePage() {
-    const [initialLoad, setInitialLoadComplete] = useState(false);
+    const initialLoadComplete = useRef(false);
     const [totalPages, setTotalPages] = useState(0);
     const [page, setPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [todos, setTodos] = useState<HomeTodo[]>([]);
     const [search, setSearch] = useState("");
 
-    const homeTodos = todoController.filterTodosByContent<HomeTodo>(search, todos)
-
-    // const homeTodos = todos.filter((todo) => {
-    //     const searchNormalized = search.toLowerCase();
-    //     const contentNormalized = todo.content.toLowerCase();
-    //     return contentNormalized.includes(searchNormalized);
-    // });
+    const homeTodos = todoController.filterTodosByContent<HomeTodo>(
+        search,
+        todos
+    );
 
     const isFiltering = search.trim() !== ""; // Verifica se está filtrando
     const showLoadMoreButton = !isFiltering && totalPages > page; // Botão aparece apenas sem filtro e com mais páginas
     const hasNoTodos = isFiltering && homeTodos.length === 0 && !isLoading; // Mostra "Nenhum item encontrado" só durante a filtragem
 
     useEffect(() => {
-        setInitialLoadComplete(true);
-        if (!initialLoad) {
+        console.log("complete", initialLoadComplete.current);
+        if (!initialLoadComplete.current) {
             todoController
                 .get({ page })
                 .then(({ todos, pages }) => {
@@ -42,6 +39,7 @@ function HomePage() {
                 })
                 .finally(() => {
                     setIsLoading(false); // Indica o fim do carregamento
+                    initialLoadComplete.current = true;
                 });
         }
     }, []);
@@ -95,22 +93,22 @@ function HomePage() {
                         </thead>
 
                         <tbody>
-                            {homeTodos && homeTodos.length > 0 ? (
-                                homeTodos.map((todo) => (
-                                    <tr key={todo.id}>
-                                        <td>
-                                            <input type="checkbox" />
-                                        </td>
-                                        <td>{todo.id.substring(0, 4)}</td>
-                                        <td>{todo.content}</td>
-                                        <td align="right">
-                                            <button data-type="delete">
-                                                Apagar
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : null}
+                            {homeTodos && homeTodos.length > 0
+                                ? homeTodos.map((todo) => (
+                                      <tr key={todo.id}>
+                                          <td>
+                                              <input type="checkbox" />
+                                          </td>
+                                          <td>{todo.id.substring(0, 4)}</td>
+                                          <td>{todo.content}</td>
+                                          <td align="right">
+                                              <button data-type="delete">
+                                                  Apagar
+                                              </button>
+                                          </td>
+                                      </tr>
+                                  ))
+                                : null}
 
                             {isLoading && (
                                 <tr>
@@ -148,7 +146,9 @@ function HomePage() {
                                                                     ...todos,
                                                                 ]
                                                             );
-                                                            setTotalPages(pages);
+                                                            setTotalPages(
+                                                                pages
+                                                            );
                                                         }
                                                     )
                                                     .finally(() => {
