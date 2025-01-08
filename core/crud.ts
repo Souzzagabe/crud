@@ -15,7 +15,7 @@ interface Todo {
     done: boolean;
 }
 
-function create(content: UUID): Todo {
+export function create(content: UUID): Todo {
     const todo: Todo = {
         id: uuid(),
         date: new Date().toISOString(),
