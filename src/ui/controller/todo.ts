@@ -33,15 +33,15 @@ interface TodoControllerCreateParams {
 
 function create({ content, onError, onSuccess }: TodoControllerCreateParams) {
 
-    // const parsedParams = schema.string().nonempty().safeParse(content)
-    // if (!parsedParams){
-    //     onError();
-    //     return;
-    // }
+    const parsedParams = schema.string().nonempty().safeParse(content)
+    if (!parsedParams){
+        onError();
+        return;
+    }
     
-    // console.log(parsedParams)
+    console.log(parsedParams)
     todoRepository
-        .createByContent(content)
+        .createByContent(parsedParams.data!)
         .then((newTodo) => {
             onSuccess(newTodo);
         })
