@@ -1,23 +1,26 @@
-import { todoController } from '@/server/controller/todo';
+import { todoRepository } from '@/server/repository/todo';
 import { NextResponse, NextRequest } from 'next/server';
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    // Verifique se o método é PUT
-    if (request.method !== 'PUT') {
-      return NextResponse.json(
-        { error: { message: "method is not allowed." } },
-        { status: 405 } // Method Not Allowed
-      );
+export const PUT = async (req: NextRequest, { params }: { params: { id: string } }) => {
+    try {
+        const todoId = params.id;
+
+        if (!todoId || typeof todoId !== "string") {
+            return NextResponse.json(
+                { error: { message: "Todo ID is required." } },
+                { status: 400 }
+            );
+        }
+
+        const updatedTodo = await todoRepository.toggleDone(todoId);
+
+        return NextResponse.json({ todo: updatedTodo }, { status: 200 });
+
+    } catch (error) {
+        console.error("Erro ao atualizar todo:", error);
+        return NextResponse.json(
+            { error: { message: "An error occurred while updating the todo." } },
+            { status: 500 }
+        );
     }
-
-    const response = await todoController.toggleDone(request);
-
-    return response;
-  } catch (error) {
-    return NextResponse.json(
-      { error: { message: "An error occurred in the PUT handler." } },
-      { status: 500 }
-    );
-  }
-}
+};

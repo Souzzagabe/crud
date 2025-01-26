@@ -1,5 +1,6 @@
 import { z as schema } from "zod";
 import { Todo, TodoSchema } from "../schema/todo";
+import { RESPONSE_LIMIT_DEFAULT } from "next/dist/server/api-utils";
 
 interface todoRepositoryGetParams {
     page: number;
@@ -33,7 +34,7 @@ function get({
     );
 }
 
-export async function createByContent(content: string): Promise<Todo>{
+export async function createByContent(content: string): Promise<Todo> {
     const response = await fetch("/api/todos", {
         method: "POST",
         headers: {
@@ -47,13 +48,14 @@ export async function createByContent(content: string): Promise<Todo>{
         const serverResponse = await response.json();
         const ServerResponseSchema = schema.object({
             todo: TodoSchema,
-        })
+        });
 
-        const serverResponseParsed = ServerResponseSchema.safeParse(serverResponse)
+        const serverResponseParsed =
+            ServerResponseSchema.safeParse(serverResponse);
         if (!serverResponseParsed.success) {
-            throw new Error("failed to create todo")
+            throw new Error("failed to create todo");
         }
-        
+
         const todo = serverResponseParsed.data.todo;
 
         return todo;
@@ -61,9 +63,46 @@ export async function createByContent(content: string): Promise<Todo>{
     throw new Error("failed to create todo:");
 }
 
+
+async function toggleDone(todoID: string | undefined): Promise<Todo> {
+    if (!todoID) {
+        throw new Error("Todo ID is required but was not provided.");
+    }
+
+    const response = await fetch(`/api/todos/${todoID}/toggle-done`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        // body: JSON.stringify({ id: todoID }),
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to toggle done: ${response.status} - ${errorText}`);
+    }
+
+    const serverResponse = await response.json();
+
+    const serverResponseSchema = schema.object({
+        todo: TodoSchema,
+    });
+
+    const serverResponseParsed = serverResponseSchema.safeParse(serverResponse);
+
+    if (!serverResponseParsed.success) {
+        throw new Error(`Failed to update TODO with id ${todoID}`);
+    }
+
+    return serverResponseParsed.data.todo;
+}
+
+
+
 export const todoRepository = {
     get,
     createByContent,
+    toggleDone
 };
 
 // interface Todo {
