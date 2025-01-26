@@ -85,8 +85,35 @@ const create = async (req: NextRequest) => {
     }
 };
 
+async function toggleDone(req: NextRequest) {
+    try {
+        const todoId = req.nextUrl.searchParams.get("id"); // Ajuste para pegar o ID da query
+        if (!todoId || typeof todoId !== "string") {
+            return NextResponse.json(
+                { error: { message: "Todo ID is required." } },
+                { status: 400 }
+            );
+        }
+
+        // Simulação do updatedTodo
+        const updatedTodo = await todoRepository.toggleDone(todoId);
+
+        // Garantir que a função toggleDone seja chamada de forma assíncrona
+
+        return NextResponse.json({ todo: updatedTodo }, { status: 200 });
+    } catch (error) {
+        if(error instanceof Error) {
+        return NextResponse.json(
+            { error: { message: error.message } },
+            { status: 500 }
+        );
+        }
+
+    }
+}
 
 export const todoController = {
     get,
     create,
+    toggleDone,
 };

@@ -54,4 +54,4 @@ export const todoController = {
     get,
     filterTodosByContent,
     create,
-}; // <-- Fechando a exportação do objeto `todoController`
+};
